@@ -4,15 +4,12 @@ package alisongonzalez.conceptoradial;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,10 +23,11 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PodcastsFragment extends Fragment {
+public class PodcastCategoryFragment extends Fragment {
     private String podcastsJson;
+    private TextView textView;
 
-    public PodcastsFragment() {
+    public PodcastCategoryFragment() {
         // Required empty public constructor
     }
 
@@ -37,20 +35,34 @@ public class PodcastsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_podcasts, container, false);
-
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_podcast_category, container, false);
         podcastsJson = loadJSONFromAsset();
-        final ListView listView = (ListView) view.findViewById(R.id.podcastList);
+        final ListView listView = (ListView) view.findViewById(R.id.podcastListCategory);
         final ArrayList<String> arrayList = new ArrayList<>();
 
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this.getContext(),
                 android.R.layout.simple_list_item_1, arrayList);
         listView.setAdapter(arrayAdapter);
 
+        textView = (TextView) view.findViewById(R.id.category);
+        Bundle bundle = getArguments();
+        String name = bundle.getString("category");
+        textView.setText(name);
+
         try{
             JSONArray jsonArray = new JSONArray(podcastsJson);
+            JSONObject jsonObject = null;
             for (int i = 0; i < jsonArray.length(); i++){
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                jsonObject = jsonArray.getJSONObject(i);
+                String podcastString = jsonObject.optString("titulo");
+                if (podcastString.equalsIgnoreCase(name)){
+                    break;
+                }
+            }
+            jsonArray = jsonObject.getJSONArray("podcasts");
+            for (int i = 0; i < jsonArray.length(); i++){
+                jsonObject = jsonArray.getJSONObject(i);
                 String podcastString = jsonObject.optString("titulo");
                 if (podcastString != null){
                     arrayList.add(podcastString);
@@ -60,18 +72,6 @@ public class PodcastsFragment extends Fragment {
         } catch (JSONException e){
             e.printStackTrace();
         }
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String name = arrayAdapter.getItem(i);
-                Bundle bundle = new Bundle();
-                bundle.putString("category", name);
-                PodcastCategoryFragment fragment = new PodcastCategoryFragment();
-                fragment.setArguments(bundle);
-                loadFragment(fragment);
-            }
-        });
 
         return view;
     }
@@ -90,13 +90,6 @@ public class PodcastsFragment extends Fragment {
             return null;
         }
         return json;
-    }
-
-    private void loadFragment(Fragment fragment) {
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.frame_container, fragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
     }
 
 }
