@@ -16,6 +16,7 @@ public class StreamingFragment extends Fragment {
     private boolean isPlaying;
     private Button playButton;
     private StreamingService streamingService;
+    private String url = "http://204.12.193.98:8139/";
 
     public StreamingFragment() {
         // Required empty public constructor
@@ -36,9 +37,10 @@ public class StreamingFragment extends Fragment {
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getActivity().startService(new Intent(getActivity(), streamingService.getClass()));
                 if (!isPlaying){
-                    getActivity().startService(new Intent(getActivity(), streamingService.getClass()));
+                    Intent serviceIntent = new Intent(getActivity(), streamingService.getClass());
+                    serviceIntent.putExtra("url", url);
+                    getActivity().startService(serviceIntent);
                     isPlaying = true;
                 } else {
                     getActivity().stopService(new Intent(getActivity(), streamingService.getClass()));

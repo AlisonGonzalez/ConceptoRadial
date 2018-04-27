@@ -1,6 +1,7 @@
 package alisongonzalez.conceptoradial;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -28,6 +29,8 @@ public class PlayPodcastFragment extends Fragment {
     private String podcastsJson, url;
     private TextView podcastName, podcastProgram;
     private Button button;
+    private StreamingService streamingService;
+    private boolean isPlaying;
 
     public PlayPodcastFragment() {
         // Required empty public constructor
@@ -72,11 +75,20 @@ public class PlayPodcastFragment extends Fragment {
         } catch (JSONException e){
             e.printStackTrace();
         }
-
+        isPlaying = false;
+        streamingService = new StreamingService();
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println(url);
+                if (!isPlaying){
+                    Intent serviceIntent = new Intent(getActivity(), streamingService.getClass());
+                    serviceIntent.putExtra("url", url);
+                    getActivity().startService(serviceIntent);
+                    isPlaying = true;
+                } else {
+                    getActivity().stopService(new Intent(getActivity(), streamingService.getClass()));
+                    isPlaying = false;
+                }
             }
         });
 
