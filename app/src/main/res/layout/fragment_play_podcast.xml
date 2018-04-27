@@ -34,7 +34,7 @@
         app:layout_constraintTop_toBottomOf="@+id/imageView4" />
 
     <TextView
-        android:id="@+id/podcastTitle"
+        android:id="@+id/newsTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -60,7 +60,7 @@
         android:text="Programa"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/podcastTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/newsTitle" />
 
     <Button
         android:id="@+id/playPodcast"
