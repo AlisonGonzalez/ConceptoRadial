@@ -1,11 +1,14 @@
 package alisongonzalez.conceptoradial;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.android.volley.RequestQueue;
@@ -26,7 +29,6 @@ public class NewsFragment extends Fragment {
     private ListView listView;
     private NewsAdapter adapter;
     private String newsJson;
-    private RequestQueue requestQueue;
 
     public NewsFragment() {
         // Required empty public constructor
@@ -55,6 +57,18 @@ public class NewsFragment extends Fragment {
             e.printStackTrace();
         }
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                NewsPojo n = adapter.getItem(i);
+                Bundle bundle = new Bundle();
+                bundle.putString("title", n.title);
+                FullNewsFragment fragment = new FullNewsFragment();
+                fragment.setArguments(bundle);
+                loadFragment(fragment);
+            }
+        });
+
         return view;
     }
 
@@ -72,6 +86,13 @@ public class NewsFragment extends Fragment {
             return null;
         }
         return json;
+    }
+
+    private void loadFragment(Fragment fragment) {
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_container, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
 }
