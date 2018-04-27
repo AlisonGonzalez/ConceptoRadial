@@ -1,15 +1,14 @@
 package alisongonzalez.conceptoradial;
 
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -25,11 +24,12 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PodcastCategoryFragment extends Fragment {
-    private String podcastsJson;
-    private TextView textView;
+public class PlayPodcastFragment extends Fragment {
+    private String podcastsJson, url;
+    private TextView podcastName, podcastProgram;
+    private Button button;
 
-    public PodcastCategoryFragment() {
+    public PlayPodcastFragment() {
         // Required empty public constructor
     }
 
@@ -38,19 +38,17 @@ public class PodcastCategoryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_podcast_category, container, false);
+        View view = inflater.inflate(R.layout.fragment_play_podcast, container, false);
+
         podcastsJson = loadJSONFromAsset();
-        final ListView listView = (ListView) view.findViewById(R.id.podcastListCategory);
-        final ArrayList<String> arrayList = new ArrayList<>();
-
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this.getContext(),
-                android.R.layout.simple_list_item_1, arrayList);
-        listView.setAdapter(arrayAdapter);
-
-        textView = (TextView) view.findViewById(R.id.category);
+        button = (Button) view.findViewById(R.id.playPodcast);
+        podcastProgram = (TextView) view.findViewById(R.id.podcastCategory);
+        podcastName = (TextView) view.findViewById(R.id.podcastTitle);
         Bundle bundle = getArguments();
-        final String category = bundle.getString("category");
-        textView.setText(category);
+        String category = bundle.getString("category");
+        String name = bundle.getString("podcast");
+        podcastProgram.setText(category);
+        podcastName.setText(name);
 
         try{
             JSONArray jsonArray = new JSONArray(podcastsJson);
@@ -66,25 +64,19 @@ public class PodcastCategoryFragment extends Fragment {
             for (int i = 0; i < jsonArray.length(); i++){
                 jsonObject = jsonArray.getJSONObject(i);
                 String podcastString = jsonObject.optString("titulo");
-                if (podcastString != null){
-                    arrayList.add(podcastString);
+                if (podcastString.equalsIgnoreCase(name)){
+                    url = jsonObject.optString("URL");
+                    break;
                 }
             }
-            arrayAdapter.notifyDataSetChanged();
         } catch (JSONException e){
             e.printStackTrace();
         }
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String name = arrayAdapter.getItem(i);
-                Bundle bundle = new Bundle();
-                bundle.putString("podcast", name);
-                bundle.putString("category", category);
-                PlayPodcastFragment fragment = new PlayPodcastFragment();
-                fragment.setArguments(bundle);
-                loadFragment(fragment);
+            public void onClick(View view) {
+                System.out.println(url);
             }
         });
 
@@ -105,13 +97,6 @@ public class PodcastCategoryFragment extends Fragment {
             return null;
         }
         return json;
-    }
-
-    private void loadFragment(Fragment fragment) {
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.frame_container, fragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
     }
 
 }
